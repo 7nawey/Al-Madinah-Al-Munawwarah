@@ -1,0 +1,6 @@
+@Al_Madinah_Al_Munawwarah_HostAddress = http://localhost:5267
+
+GET {{Al_Madinah_Al_Munawwarah_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

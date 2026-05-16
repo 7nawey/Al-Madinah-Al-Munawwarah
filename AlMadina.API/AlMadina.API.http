@@ -1,0 +1,6 @@
+@AlMadina.API_HostAddress = http://localhost:5069
+
+GET {{AlMadina.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
