@@ -27,9 +27,18 @@ namespace AlMadina.API
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // =========================
-            // Unit Of Work
+            // CORS  (صح هنا)
             // =========================
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
 
             // =========================
             // Identity
@@ -41,32 +50,33 @@ namespace AlMadina.API
             // =========================
             // AutoMapper
             // =========================
-
             builder.Services.AddAutoMapper(
                 typeof(MappingProfile).Assembly,
                 typeof(IdentityMappingProfile).Assembly
             );
 
+            // =========================
+            // Services
+            // =========================
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IProductService, ProductService>();
-            // =========================
-            // Controllers
-            // =========================
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
+            builder.Services.AddMemoryCache();
+
+            // =========================
+            // Controllers + Swagger
+            // =========================
             builder.Services.AddControllers();
-
-            // =========================
-            // Swagger
-            // =========================
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             // =========================
-            // Middleware
+            // Middleware pipeline
             // =========================
             if (app.Environment.IsDevelopment())
             {
@@ -74,18 +84,22 @@ namespace AlMadina.API
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+           
+
+            app.UseCors("AllowAll");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.UseStaticFiles();
+
             app.MapGet("/", context =>
             {
                 context.Response.Redirect("/swagger");
                 return Task.CompletedTask;
             });
-            app.UseAuthentication();
-
-            app.UseAuthorization();
-
-            app.MapControllers();
-            app.UseStaticFiles();
 
             app.Run();
         }

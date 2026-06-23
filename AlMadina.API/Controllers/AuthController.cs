@@ -10,33 +10,52 @@ namespace AlMadina.API.Controllers
     {
         private readonly IAuthService _authService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(
+            IAuthService authService)
         {
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterUserDto dto)
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp(
+            SendOtpDto dto)
         {
-            var result = await _authService.RegisterAsync(dto);
+            await _authService.SendOtpAsync(dto.Email);
+
+            return Ok("OTP sent");
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(
+            VerifyOtpDto dto)
+        {
+            var result =
+                await _authService.VerifyOtpAsync(dto);
+
+            if (result == null)
+                return BadRequest("Invalid OTP");
+
             return Ok(result);
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginUserDto dto)
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin(
+            GoogleLoginDto dto)
         {
-            var token = await _authService.LoginAsync(dto);
+            var result =
+                await _authService
+                .GoogleLoginAsync(dto.IdToken);
 
-            if (token == null)
-                return Unauthorized("Invalid credentials");
-
-            return Ok(new { token });
+            return Ok(result);
         }
 
         [HttpGet("profile/{id}")]
-        public async Task<IActionResult> Profile(string id)
+        public async Task<IActionResult> Profile(
+            string id)
         {
-            var user = await _authService.GetProfileAsync(id);
+            var user =
+                await _authService
+                .GetProfileAsync(id);
 
             if (user == null)
                 return NotFound();
@@ -45,14 +64,17 @@ namespace AlMadina.API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update(UpdateUserDto dto)
+        public async Task<IActionResult> Update(
+            UpdateUserDto dto)
         {
-            var result = await _authService.UpdateUserAsync(dto);
+            var result =
+                await _authService
+                .UpdateUserAsync(dto);
 
             if (!result)
                 return NotFound();
 
-            return Ok("Updated successfully");
+            return Ok();
         }
     }
 }

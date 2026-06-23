@@ -4,9 +4,11 @@ namespace AlMadina.Application.Interfaces.Services
 {
     public interface IAuthService
     {
-        Task<UserDto> RegisterAsync(RegisterUserDto dto);
+        Task SendOtpAsync(string email);
 
-        Task<string?> LoginAsync(LoginUserDto dto);
+        Task<AuthResponseDto?> VerifyOtpAsync(VerifyOtpDto dto);
+
+        Task<AuthResponseDto?> GoogleLoginAsync(string idToken);
 
         Task<UserDto?> GetProfileAsync(string userId);
 
