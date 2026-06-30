@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using AlMadina.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +16,7 @@ namespace AlMadina.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ namespace AlMadina.API
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // =========================
-            // CORS  (صح هنا)
+            // CORS
             // =========================
             builder.Services.AddCors(options =>
             {
@@ -59,10 +60,13 @@ namespace AlMadina.API
             // Services
             // =========================
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             builder.Services.AddMemoryCache();
 
@@ -84,8 +88,6 @@ namespace AlMadina.API
                 app.UseSwaggerUI();
             }
 
-           
-
             app.UseCors("AllowAll");
 
             app.UseAuthentication();
@@ -94,6 +96,15 @@ namespace AlMadina.API
             app.MapControllers();
 
             app.UseStaticFiles();
+
+            // Seed data on startup
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                await AlMadina.Infrastructure.Data.SeedData.SeedAsync(context, userManager, roleManager);
+            }
 
             app.MapGet("/", context =>
             {

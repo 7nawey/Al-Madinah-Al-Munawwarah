@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -220,11 +220,12 @@ namespace AlMadina.Infrastructure.Services
 
         private string GenerateToken(ApplicationUser user)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, user.Email ?? ""),
-                new Claim("FullName", user.FullName ?? "")
+                new Claim("FullName", user.FullName ?? ""),
+                new Claim(ClaimTypes.Role, user.Role ?? "User")
             };
 
             var key = new SymmetricSecurityKey(

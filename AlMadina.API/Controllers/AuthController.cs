@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using AlMadina.Application.DTOs;
 using AlMadina.Application.Interfaces.Services;
 
@@ -14,6 +14,22 @@ namespace AlMadina.API.Controllers
             IAuthService authService)
         {
             _authService = authService;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
+        {
+            var result = await _authService.RegisterAsync(dto);
+            return Ok(new { token = result });
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserDto dto)
+        {
+            var result = await _authService.LoginAsync(dto);
+            if (result == null)
+                return Unauthorized(new { message = "Invalid credentials" });
+            return Ok(new { token = result });
         }
 
         [HttpPost("send-otp")]

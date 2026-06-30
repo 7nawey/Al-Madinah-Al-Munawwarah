@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace AlMadina.Domain.Entities
 {
@@ -10,11 +10,8 @@ namespace AlMadina.Domain.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-     
         public bool IsActive { get; set; } = true;
 
-
-        
+        public string Role { get; set; } = "User";
     }
-
 }
